@@ -13,7 +13,7 @@ The current date (Y,M,D) is stored and concatenated with the local time (H,M,S).
 The returned sunrise time is passed into the returned HTML document as displayed for the user.
 
 ### Inputs and Outputs
-The input and output of the application will be handled by Flask using HTTP requests to get data, and provide a webpage to display information and allow user interaction.
+The input and output of the application will be handled by Flask using HTTP requests to get data, and provide a webpage to display information and allow user data input. It gets HTML and accepts a string for user input. This user input is used to gain a JSON output from the LocationIQ Geocode API which is parsed and becomes the input for the Sunset_Sunrise API. Finally, the output is HTML rendered to display data to the user.
 
 ### Structure
 The sunrise application will have 3 routes, a GET route which initially return a HTML document which has a form where the user can input an address. This HTML will also encompass a POST route which passes the address input to the third route. The third route is a GET route that uses the address input to get the sunset time for that location. The logic for the routes is encapsulated in classes Lat_Long_Address and Sunrise_Time.  
