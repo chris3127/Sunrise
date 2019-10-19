@@ -24,11 +24,10 @@ The following packages are also required:
 gunicorn 
 flask 
 pytest
-python-dotenv 
+python-dotenv
 requests 
 flask-wtf 
 timezonefinder 
 flake8 
 os
-json
 

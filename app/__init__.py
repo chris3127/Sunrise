@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
 
+'''
+Author:Chris Moran
+Contact:chrismoran3127@gmail.com
+Date:2019/10/19
+Licence: GPLv3
+Version:1.0
+Sunrise Application
+This application is designed to tell the user
+what time sunrise is at any given address
+'''
+
 import os
 from flask import Flask
 from flask import request
