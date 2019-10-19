@@ -2,12 +2,18 @@
 
 import os
 from flask import Flask
-from flask import request # work with the current Flask request
+from flask import request
 from flask import Response
+from flask import render_template, flash, redirect
+from config import Config
+from app.forms import LoginForm
+from timezonefinder import TimezoneFinder
+import pytz, datetime
 import requests
 import json
 
 app = Flask(__name__)
+app.config.from_object(Config)
 
 API_KEY_GEOCODE = os.getenv("API_KEY_GEOCODE")
 
@@ -91,34 +97,41 @@ class Sunrise_Time:
         return status
 
 
-#FOR TESTING
-test_address = "1600 Amphitheatre Parkway, Mountain View, CA"
-print(API_KEY_GEOCODE)
-address_data = Lat_Long_Address(test_address)
-print(address_data.lat_long())
-lat_and_long = address_data.lat_long()
-lat = lat_and_long[0]
-long = lat_and_long[1]
-sunrise = Sunrise_Time(lat, long)
-print(sunrise.sunrise_output())
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        flash('Address required'.format(form.address.data))
+        return redirect(f'/sunrise?address={form.address.data}')
+    return render_template('index.html', title='home', form=form)
 
+@app.route('/sunrise', methods=['GET'])
+def conversion():
+    '''
+    Converts the user input address to Latitude and Longitude coordinates.
+    '''
+    address = request.args.get('address')
+    address_data = Lat_Long_Address(address)
+    lat,long = address_data.lat_long()
+    sunrise_time = sunrise(lat, long)
+    return render_template('sunrise.html', title='sunrise', sunrise_time=sunrise_time)
 
-# @app.route('/' methods=['GET'])
-# def input_form():
-#     '''
-#     Renders a form on the homepage
-#     '''
-#     html = ''
-    
-
-
-
-# @app.route('/' methods=['POST'])
-
-# def render_sunrise_time(address, time):
-#     '''
-#     Renders the sunrise time to HTML for viewing by user.
-#     '''
-#     html = f'<h1>Sunrise at {address} is at {time}</h1><br>'
-#     return html
+def sunrise(lat, long):
+    '''
+    Calls the Sunrise API and returns a time for sunrise
+    '''
+    tf = TimezoneFinder(in_memory=True)
+    longitude = float(long)
+    latitude = float(lat)
+    lat_long_timezone = tf.timezone_at(lng=longitude, lat=latitude)
+    tz = pytz.timezone(lat_long_timezone)
+    sunrise = Sunrise_Time(lat, long)
+    sunrise_time_zulu = sunrise.sunrise_output()
+    print(sunrise_time_zulu)
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    print(today)
+    utc_time = datetime.datetime.strptime(today + " " + sunrise_time_zulu, "%Y-%m-%d %I:%M:%S %p")
+    local_time = pytz.utc.localize(utc_time, is_dst=None).astimezone(tz)
+    sunrise_time_local = local_time.strftime ("%I:%M:%S %p")
+    return sunrise_time_local
 

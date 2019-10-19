@@ -11,6 +11,9 @@ flask = "*"
 pytest = "*"
 python-dotenv = "*"
 requests = "*"
+flask-wtf = "*"
+timezonefinder = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.7"
